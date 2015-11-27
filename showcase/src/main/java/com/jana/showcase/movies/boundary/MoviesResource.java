@@ -74,7 +74,7 @@ public class MoviesResource {
     @Consumes(value = MediaType.APPLICATION_JSON)
     public Response create(Movie movie) {
         Response response;
-        final Movie oldMovie = movieService.find(movie.getIdImdb());
+        final Movie oldMovie = movieService.find(movie.getId());
         if(oldMovie!=null) {
             response = Response.status(Response.Status.CONFLICT)
                     .entity(new Message(Message.Code.RECORD_DUPLICATE)).build();
@@ -107,7 +107,7 @@ public class MoviesResource {
     @Consumes(value = MediaType.APPLICATION_JSON)
     public Response update(@PathParam(value = "id") @NotNull String id, Movie movie) {
         Response response;
-        if(!Objects.equals(id, movie.getIdImdb())){
+        if(!Objects.equals(id, movie.getId())){
             return Response.status(Response.Status.CONFLICT)
                             .entity(new Message(Message.Code.DATA_MISMATCH)).build();
         }

@@ -38,7 +38,7 @@ public class MovieService {
      */
     public Movie find(String id) {
         try {
-            return (Movie)em.createNamedQuery("Movie.findByIdImdb").setParameter("idImdb", id).getSingleResult();
+            return (Movie)em.createNamedQuery("Movie.findById").setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
             System.out.println("Exception "+e.getMessage());
             return null;
@@ -64,7 +64,7 @@ public class MovieService {
      */
     @Transactional
     public Movie update(Movie movie) {
-        movie = em.find(Movie.class, movie.getIdImdb());
+        movie = em.find(Movie.class, movie.getId());
         if(Objects.isNull(movie)) {
             return null;
         } else {
