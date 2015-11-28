@@ -8,7 +8,6 @@ package com.jana.showcase.movies.boundary;
 import com.jana.showcase.movies.control.MovieService;
 import com.jana.showcase.movies.entity.Message;
 import com.jana.showcase.movies.entity.Movie;
-import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -41,8 +40,8 @@ public class MoviesResource {
      * @return
      */
     @GET
-    public List<Movie> load(@QueryParam(value = "sort") @DefaultValue(value = "title") String sort) {
-        return movieService.load(sort);
+    public Response load(@QueryParam(value = "sort") @DefaultValue(value = "title") String sort) {
+        return Response.ok().entity(new Movies(movieService.load(sort))).build();
     }
     
     /**
@@ -57,7 +56,7 @@ public class MoviesResource {
         Response response;
         if(Objects.nonNull(movie)) {
             System.out.println(movie);
-            response = Response.status(Response.Status.OK).entity(movie).build();
+            response = Response.status(Response.Status.OK).entity(movie.toString()).build();
         } else {
             response = Response.status(Response.Status.NOT_FOUND)
                     .entity(new Message(Message.Code.RECORD_NOT_FOUND)).build();
@@ -74,7 +73,7 @@ public class MoviesResource {
     @Consumes(value = MediaType.APPLICATION_JSON)
     public Response create(Movie movie) {
         Response response;
-        final Movie oldMovie = movieService.find(movie.getIdImdb());
+        final Movie oldMovie = movieService.find(movie.getId());
         if(oldMovie!=null) {
             response = Response.status(Response.Status.CONFLICT)
                     .entity(new Message(Message.Code.RECORD_DUPLICATE)).build();
@@ -107,7 +106,7 @@ public class MoviesResource {
     @Consumes(value = MediaType.APPLICATION_JSON)
     public Response update(@PathParam(value = "id") @NotNull String id, Movie movie) {
         Response response;
-        if(!Objects.equals(id, movie.getIdImdb())){
+        if(!Objects.equals(id, movie.getId())){
             return Response.status(Response.Status.CONFLICT)
                             .entity(new Message(Message.Code.DATA_MISMATCH)).build();
         }

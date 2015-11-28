@@ -23,10 +23,10 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @Entity
 @Table(name = "MOVIE")
-@XmlRootElement
+@XmlRootElement(name = "movie")
 @NamedQueries({
     @NamedQuery(name = "Movie.findAll", query = "SELECT m FROM Movie m"),
-    @NamedQuery(name = "Movie.findByIdImdb", query = "SELECT m FROM Movie m WHERE m.idImdb = :idImdb"),
+    @NamedQuery(name = "Movie.findById", query = "SELECT m FROM Movie m WHERE m.id = :id"),
     @NamedQuery(name = "Movie.findByTitle", query = "SELECT m FROM Movie m WHERE m.title = :title"),
     @NamedQuery(name = "Movie.findByRanking", query = "SELECT m FROM Movie m WHERE m.ranking = :ranking"),
     @NamedQuery(name = "Movie.findByRating", query = "SELECT m FROM Movie m WHERE m.rating = :rating"),
@@ -39,7 +39,7 @@ public class Movie implements Serializable {
     @NotNull
     @Size(min = 1, max = 20)
     @Column(name = "ID_IMDB")
-    private String idImdb;
+    private String id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
@@ -56,12 +56,12 @@ public class Movie implements Serializable {
     @Column(name = "RELEASE")
     private Integer release;
 
-    public String getIdImdb() {
-        return idImdb;
+    public String getId() {
+        return id;
     }
 
-    public void setIdImdb(String idImdb) {
-        this.idImdb = idImdb;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -106,15 +106,16 @@ public class Movie implements Serializable {
 
     @Override
     public String toString() {
-        return "com.jana.showcase.movies.entity.Movie"
-                + "\n        [ "
-                + "\n                idImdb=" + idImdb + ", "
-                + "\n                title= "+title+", "
-                + "\n                ranking= "+ranking+", "
-                + "\n                rating= "+rating+", "
-                + "\n                posterUrl= "+posterUrl+", "
-                + "\n                released= "+release+", "
-                + "\n        ]";
+        return "{"
+                + "\"movie\":{"
+                + "\"id\":\"" + id + "\","
+                + "\"title\":\""+title+"\","
+                + "\"ranking\":\""+ranking+"\", "
+                + "\"rating\":\""+rating+"\", "
+                + "\"posterUrl\":\""+posterUrl+"\", "
+                + "\"release\":\""+release+"\""
+                + "}"
+                + "}";
     }
     
 }

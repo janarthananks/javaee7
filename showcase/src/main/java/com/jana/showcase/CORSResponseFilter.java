@@ -30,7 +30,6 @@ public class CORSResponseFilter implements ContainerResponseFilter{
      */
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
-        System.out.println("CORS Request Filter");
         if (requestContext.getRequest().getMethod().equalsIgnoreCase(HttpMethod.OPTIONS)) {
             requestContext.abortWith(Response.ok().build());
         }

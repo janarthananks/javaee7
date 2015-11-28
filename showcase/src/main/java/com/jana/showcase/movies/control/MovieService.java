@@ -38,7 +38,7 @@ public class MovieService {
      */
     public Movie find(String id) {
         try {
-            return (Movie)em.createNamedQuery("Movie.findByIdImdb").setParameter("idImdb", id).getSingleResult();
+            return (Movie)em.createNamedQuery("Movie.findById").setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
             System.out.println("Exception "+e.getMessage());
             return null;
@@ -50,7 +50,6 @@ public class MovieService {
      * @param movie
      * @return 
      */
-    @Transactional
     public int create(Movie movie) {
             em.persist(movie);
             System.out.println("Movie Added");
@@ -64,8 +63,7 @@ public class MovieService {
      */
     @Transactional
     public Movie update(Movie movie) {
-        movie = em.find(Movie.class, movie.getIdImdb());
-        if(Objects.isNull(movie)) {
+        if(Objects.isNull(em.find(Movie.class, movie.getId()))) {
             return null;
         } else {
             return em.merge(movie);
@@ -77,7 +75,6 @@ public class MovieService {
      * @param id
      * @return 
      */
-    @Transactional
     public int delete(String id) {
         Movie movie = em.find(Movie.class, id);
         if(Objects.isNull(movie)) {
