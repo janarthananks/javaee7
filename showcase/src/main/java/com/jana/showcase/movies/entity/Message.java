@@ -29,10 +29,10 @@ public class Message {
      * 
      */
     public enum Code {
-        CREATION_FAILED("1001","Creation failed, information not acceptable", Type.ERROR),
+        CREATION_FAILED("1001","Creation failed, server error", Type.ERROR),
         CREATION_SUCCESS("1002","created",Type.INFO),
         READ_FAILED("2001","Read failed", Type.ERROR),
-        UPDATE_FAILED("3001","Updation failed, information not acceptable", Type.ERROR),
+        UPDATE_FAILED("3001","Updation failed, server error", Type.ERROR),
         DELETION_FAILED("4001","Deletion failed", Type.ERROR),
         DELETION_SUCCESS("4002","Movie deleted",Type.INFO),
         RECORD_DUPLICATE("6001","A movie with same id exist", Type.ERROR),

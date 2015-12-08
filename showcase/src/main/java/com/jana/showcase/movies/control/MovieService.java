@@ -8,18 +8,20 @@ package com.jana.showcase.movies.control;
 import com.jana.showcase.movies.entity.Movie;
 import java.util.List;
 import java.util.Objects;
+import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 /**
  *
  * @author JANARTHANANS
  */
+@Stateless
 public class MovieService {
     
-    @PersistenceContext
+    @PersistenceContext (unitName = "default")
     private EntityManager em;
     
     /**
@@ -50,10 +52,10 @@ public class MovieService {
      * @param movie
      * @return 
      */
-    public int create(Movie movie) {
-            em.persist(movie);
-            System.out.println("Movie Added");
-            return 0;
+    public int create(@Valid Movie movie) {
+        em.persist(movie);
+        System.out.println("Movie Added");
+        return 0;
     }
     
     /**
@@ -61,8 +63,7 @@ public class MovieService {
      * @param movie
      * @return 
      */
-    @Transactional
-    public Movie update(Movie movie) {
+    public Movie update(@Valid Movie movie) {
         if(Objects.isNull(em.find(Movie.class, movie.getId()))) {
             return null;
         } else {

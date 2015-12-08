@@ -48,6 +48,7 @@ public class Movie implements Serializable {
     @Column(name = "RANKING")
     private Integer ranking;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Basic(optional = false)
     @Column(name = "RATING")
     private Double rating;
     @Size(max = 250)
@@ -104,18 +105,18 @@ public class Movie implements Serializable {
         this.release = release;
     }
 
-    @Override
-    public String toString() {
-        return "{"
-                + "\"movie\":{"
-                + "\"id\":\"" + id + "\","
-                + "\"title\":\""+title+"\","
-                + "\"ranking\":\""+ranking+"\", "
-                + "\"rating\":\""+rating+"\", "
-                + "\"posterUrl\":\""+posterUrl+"\", "
-                + "\"release\":\""+release+"\""
-                + "}"
-                + "}";
-    }
+//    @Override
+//    public String toString() {
+//        return "{"
+//                + "\"movie\":{"
+//                + "\"id\":\"" + id + "\","
+//                + "\"title\":\""+title+"\","
+//                + "\"ranking\":\""+ranking+"\", "
+//                + "\"rating\":\""+rating+"\", "
+//                + "\"posterUrl\":\""+posterUrl+"\", "
+//                + "\"release\":\""+release+"\""
+//                + "}"
+//                + "}";
+//    }
     
 }

@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.jana.showcase.movies.boundary;
+package com.jana.showcase.movies.boundary.data;
 
-import com.jana.showcase.movies.entity.Movie;
-import java.util.List;
+import com.jana.showcase.movies.entity.Message;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,22 +16,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
-public class Movies {
-
-    private List<Movie> movies;
+public class MessageJson {
+    
+    private Message[] messages;
     
     /**
      * 
      */
-    public Movies() {
+    public MessageJson() {
+        
     }
     
     /**
      * 
-     * @param movies 
+     * @param messages 
      */
-    public Movies(List<Movie> movies) {
-        this.movies = movies;
+    public MessageJson(Message[] messages) {
+        this.messages = messages;
     }
     
 }

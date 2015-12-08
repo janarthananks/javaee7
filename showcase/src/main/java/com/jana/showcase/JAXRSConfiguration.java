@@ -5,6 +5,9 @@
  */
 package com.jana.showcase;
 
+import com.jana.showcase.movies.boundary.MoviesResource;
+import java.util.HashSet;
+import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
@@ -15,4 +18,16 @@ import javax.ws.rs.core.Application;
 @ApplicationPath("/resources")
 public class JAXRSConfiguration extends Application{
     
+    /**
+     * 
+     * @return 
+     */
+    @Override
+     public Set<Class<?>> getClasses() {
+        HashSet<Class<?>> set = new HashSet<>();
+        set.add(MoviesResource.class);
+        set.add(CORSRequestFilter.class);
+        set.add(CORSResponseFilter.class);
+        return set;
+     }
 }
