@@ -52,7 +52,7 @@ public class MovieService {
      * @param movie
      * @return 
      */
-    public int create(@Valid Movie movie) {
+    public int create(Movie movie) {
         em.persist(movie);
         System.out.println("Movie Added");
         return 0;

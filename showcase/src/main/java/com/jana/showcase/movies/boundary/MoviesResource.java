@@ -5,15 +5,9 @@
  */
 package com.jana.showcase.movies.boundary;
 
-import com.jana.showcase.movies.boundary.data.MessageJson;
 import com.jana.showcase.movies.boundary.data.MovieJson;
 import com.jana.showcase.movies.control.MovieService;
-import com.jana.showcase.movies.entity.Message;
 import com.jana.showcase.movies.entity.Movie;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.validation.ConstraintViolationException;
@@ -65,12 +59,13 @@ public class MoviesResource {
             response = Response.status(Response.Status.OK).entity(new MovieJson(movie)).build();
         } else {
             response = Response.status(Response.Status.NOT_FOUND)
-                    .entity(
-                            new MessageJson(
-                                new Message[] {
-                                    new Message(Message.Code.RECORD_NOT_FOUND)
-                                }
-                            )).build();
+//                    .entity(
+//                            new MessageJson(
+//                                new Message[] {
+//                                    new Message(Message.Code.RECORD_NOT_FOUND)
+//                                }
+//                            ))
+                    .build();
         }
         return response;
     }
@@ -88,11 +83,12 @@ public class MoviesResource {
         final Movie oldMovie = movieService.find(movie.getId());
         if(oldMovie!=null) {
             response = Response.status(Response.Status.CONFLICT)
-                        .entity(new MessageJson(
-                                new Message[]{
-                                    new Message(Message.Code.RECORD_DUPLICATE)
-                                }
-                            )).build();
+//                        .entity(new MessageJson(
+//                                new Message[]{
+//                                    new Message(Message.Code.RECORD_DUPLICATE)
+//                                }
+//                            ))
+                    .build();
         } else {
             try {
                 int retval = movieService.create(movie);
@@ -100,23 +96,25 @@ public class MoviesResource {
                     response = Response.status(Response.Status.CREATED).entity(new MovieJson(movie)).build();
                 } else {
                     response = Response.status(Response.Status.NOT_ACCEPTABLE)
-                            .entity(new MessageJson(
-                                        new Message[]{
-                                            new Message(Message.Code.CREATION_FAILED)
-                                        }
-                                    )).build();
+//                            .entity(new MessageJson(
+//                                        new Message[]{
+//                                            new Message(Message.Code.CREATION_FAILED)
+//                                        }
+//                                    ))
+                            .build();
                 }
             } catch (Exception e) {
                 System.out.println("Exception: "+e.getMessage());
                 if(e.getCause() instanceof ConstraintViolationException) {
                     ((ConstraintViolationException)e.getCause()).getConstraintViolations().stream().forEach(System.out::println);
                 }
-                response = Response.status(Response.Status.NOT_ACCEPTABLE)
-                            .entity(new MessageJson(
-                                        new Message[]{
-                                            new Message(Message.Code.CREATION_FAILED)
-                                        }
-                                    )).build();
+                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+//                            .entity(new MessageJson(
+//                                        new Message[]{
+//                                            new Message(Message.Code.CREATION_FAILED)
+//                                        }
+//                                    ))
+                        .build();
             }
         }
         return response;
@@ -136,23 +134,25 @@ public class MoviesResource {
         Response response;
         if(Objects.nonNull(movie.getId()) && !Objects.equals(id, movie.getId())){
             return Response.status(Response.Status.CONFLICT)
-                            .entity(new MessageJson(
-                                        new Message[]{
-                                            new Message(Message.Code.DATA_MISMATCH)
-                                        }
-                                    )).build();
+//                            .entity(new MessageJson(
+//                                        new Message[]{
+//                                            new Message(Message.Code.DATA_MISMATCH)
+//                                        }
+//                                    ))
+                    .build();
         }
         movie.setId(id);
         movie = movieService.update(movie);
         if(Objects.nonNull(movie)) {
             response = Response.status(Response.Status.OK).entity(new MovieJson(movie)).build();
         } else {
-            response = Response.status(Response.Status.NOT_ACCEPTABLE)
-                            .entity(new MessageJson(
-                                new Message[] {
-                                    new Message(Message.Code.RECORD_NOT_FOUND)
-                                }
-                            )).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+//                            .entity(new MessageJson(
+//                                new Message[] {
+//                                    new Message(Message.Code.RECORD_NOT_FOUND)
+//                                }
+//                            ))
+                    .build();
         }
         return response;
     }
@@ -167,18 +167,11 @@ public class MoviesResource {
     public Response delete(@PathParam("id") @NotNull String id) {
         if(movieService.delete(id)!=1){
             return Response.status(Response.Status.NOT_FOUND)
-                            .entity(new MessageJson(
-                                        new Message[]{
-                                            new Message(Message.Code.RECORD_NOT_FOUND)
-                                        }
-                                    )).build();
+//                            .entity(
+//                                    )
+                    .build();
         }
-        return Response.status(Response.Status.OK)
-                            .entity(new MessageJson(
-                                        new Message[]{
-                                            new Message(Message.Code.DELETION_SUCCESS)
-                                        }
-                                    )).build();
+        return Response.status(Response.Status.OK).build();
     }
     
 }
