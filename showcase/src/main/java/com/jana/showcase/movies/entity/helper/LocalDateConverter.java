@@ -5,7 +5,6 @@
  */
 package com.jana.showcase.movies.entity.helper;
 
-import java.time.Instant;
 import java.sql.Date;
 import java.time.LocalDate;
 import javax.persistence.AttributeConverter;
@@ -35,8 +34,7 @@ public class LocalDateConverter implements AttributeConverter<LocalDate, Date> {
      */
     @Override
     public LocalDate convertToEntityAttribute(java.sql.Date dbData) {
-        if(dbData==null) return null;
-        return LocalDate.from(dbData.toLocalDate());
+        return (dbData!=null)?LocalDate.from(dbData.toLocalDate()):null;
     }
     
     
