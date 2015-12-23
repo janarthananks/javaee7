@@ -5,11 +5,18 @@
  */
 package com.jana.showcase.movies.boundary;
 
+import com.jana.showcase.movies.boundary.data.ErrorData;
+import com.jana.showcase.movies.boundary.data.ErrorPointer;
 import com.jana.showcase.movies.boundary.data.MovieJson;
 import com.jana.showcase.movies.control.MovieService;
 import com.jana.showcase.movies.entity.Movie;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.validation.ConstraintViolationException;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -38,11 +45,23 @@ public class MoviesResource {
     /**
      *
      * @param sort
+     * @param page
+     * @param limit
      * @return
      */
     @GET
-    public Response load(@QueryParam(value = "sort") @DefaultValue(value = "title") String sort) {
-        return Response.ok().entity(new MovieJson(movieService.load(sort))).build();
+    public Response load(@QueryParam(value = "sort") @DefaultValue(value = "title") String sort, 
+                         @QueryParam(value="page") @DefaultValue(value="1") int page,
+                         @QueryParam(value="limit") @DefaultValue(value="10") int limit
+    ) {
+        return Response
+                .ok()
+                .entity(
+                    new MovieJson(
+                            movieService.load(page, limit),
+                            movieService.getCount()
+                    )
+                ).build();
     }
     
     /**
@@ -56,15 +75,18 @@ public class MoviesResource {
         final Movie movie = movieService.find(id);
         Response response;
         if(Objects.nonNull(movie)) {
-            response = Response.status(Response.Status.OK).entity(new MovieJson(movie)).build();
+            response = Response.status(Response.Status.OK)
+                    .entity(
+                        new MovieJson(
+                            movie
+                        )
+                    ).build();
         } else {
             response = Response.status(Response.Status.NOT_FOUND)
-//                    .entity(
-//                            new MessageJson(
-//                                new Message[] {
-//                                    new Message(Message.Code.RECORD_NOT_FOUND)
-//                                }
-//                            ))
+                    .entity(
+                        new MovieJson(
+                            new ErrorData("Movie not found")
+                        ))
                     .build();
         }
         return response;
@@ -82,39 +104,54 @@ public class MoviesResource {
         Movie movie = movieJson.getMovie();
         final Movie oldMovie = movieService.find(movie.getId());
         if(oldMovie!=null) {
-            response = Response.status(Response.Status.CONFLICT)
-//                        .entity(new MessageJson(
-//                                new Message[]{
-//                                    new Message(Message.Code.RECORD_DUPLICATE)
-//                                }
-//                            ))
+            response = Response
+                    .status(Response.Status.CONFLICT)
                     .build();
         } else {
             try {
                 int retval = movieService.create(movie);
                 if(retval==0) {
-                    response = Response.status(Response.Status.CREATED).entity(new MovieJson(movie)).build();
+                    response = Response.status(Response.Status.CREATED)
+                            .entity(
+                                new MovieJson(movie)
+                            ).build();
                 } else {
-                    response = Response.status(Response.Status.NOT_ACCEPTABLE)
-//                            .entity(new MessageJson(
-//                                        new Message[]{
-//                                            new Message(Message.Code.CREATION_FAILED)
-//                                        }
-//                                    ))
+                    response = Response
+                            .status(Response.Status.INTERNAL_SERVER_ERROR)
                             .build();
                 }
-            } catch (Exception e) {
-                System.out.println("Exception: "+e.getMessage());
-                if(e.getCause() instanceof ConstraintViolationException) {
-                    ((ConstraintViolationException)e.getCause()).getConstraintViolations().stream().forEach(System.out::println);
+            } catch (Exception ex) {
+                System.out.println("Exception: "+ex.getMessage());
+                if(ex.getCause() instanceof ConstraintViolationException) {
+                    List<ErrorData> errors = new ArrayList<>();
+                    JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
+                    JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+                    ((ConstraintViolationException)ex.getCause())
+                            .getConstraintViolations()
+                            .stream().forEach((violation) -> {
+                        errors.add(new ErrorData(
+                                        violation.getPropertyPath().toString(), 
+                                violation.getMessage()));
+                        jsonObjectBuilder.add(violation.getPropertyPath().toString(), 
+//                            violation.getMessage());
+                            jsonArrayBuilder.add(violation.getMessage()));
+                    });
+                    response = Response.status(422)
+                            .entity(
+//                                    new MovieJson(errors)
+                                Json.createObjectBuilder()
+                                .add("errors", Json.createArrayBuilder()
+                                        .add(
+                                            jsonObjectBuilder.build()
+                                        )
+                                    )
+                                .build()
+                            ).build();
+                } else {
+                    response = Response.serverError()
+                            .entity(new MovieJson(new ErrorData(ex.getMessage())))
+                            .build();
                 }
-                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-//                            .entity(new MessageJson(
-//                                        new Message[]{
-//                                            new Message(Message.Code.CREATION_FAILED)
-//                                        }
-//                                    ))
-                        .build();
             }
         }
         return response;
@@ -134,24 +171,19 @@ public class MoviesResource {
         Response response;
         if(Objects.nonNull(movie.getId()) && !Objects.equals(id, movie.getId())){
             return Response.status(Response.Status.CONFLICT)
-//                            .entity(new MessageJson(
-//                                        new Message[]{
-//                                            new Message(Message.Code.DATA_MISMATCH)
-//                                        }
-//                                    ))
                     .build();
         }
         movie.setId(id);
         movie = movieService.update(movie);
         if(Objects.nonNull(movie)) {
-            response = Response.status(Response.Status.OK).entity(new MovieJson(movie)).build();
+            response = Response.status(Response.Status.OK)
+                    .entity(
+                        new MovieJson(
+                            movie
+                        )
+                    ).build();
         } else {
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-//                            .entity(new MessageJson(
-//                                new Message[] {
-//                                    new Message(Message.Code.RECORD_NOT_FOUND)
-//                                }
-//                            ))
                     .build();
         }
         return response;
@@ -167,11 +199,9 @@ public class MoviesResource {
     public Response delete(@PathParam("id") @NotNull String id) {
         if(movieService.delete(id)!=1){
             return Response.status(Response.Status.NOT_FOUND)
-//                            .entity(
-//                                    )
                     .build();
         }
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
     
 }

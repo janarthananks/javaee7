@@ -12,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.validation.Valid;
 
 /**
@@ -26,11 +27,25 @@ public class MovieService {
     
     /**
      * 
-     * @param sort
      * @return 
      */
-    public List<Movie> load(String sort){
-        return em.createNamedQuery("Movie.findAll").getResultList();
+    public int getCount() {
+        Query query = em.createNamedQuery("Movie.findCount");
+        return ((Number)query.getSingleResult()).intValue();
+    }
+    
+    /**
+     * 
+     * @param page
+     * @param limit
+     * @return 
+     */
+    public List<Movie> load(int page, int limit) {
+        Query query = em.createNamedQuery("Movie.findAll");
+//        query.setParameter("column", sortColumn);
+        query.setFirstResult((page-1)* limit);
+        query.setMaxResults(limit);
+        return query.getResultList();
     }
     
     /**

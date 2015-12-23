@@ -37,5 +37,4 @@ public class LocalDateConverter implements AttributeConverter<LocalDate, Date> {
         return (dbData!=null)?LocalDate.from(dbData.toLocalDate()):null;
     }
     
-    
 }

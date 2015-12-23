@@ -17,6 +17,8 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -29,7 +31,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Table(name = "MOVIE")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Movie.findAll", query = "SELECT m FROM Movie m"),
+    @NamedQuery(name = "Movie.findCount", query = "SELECT COUNT(m) FROM Movie m"),
+    @NamedQuery(name = "Movie.findAll", query = "SELECT m FROM Movie m order by m.rating desc, m.votes desc"),
     @NamedQuery(name = "Movie.findById", query = "SELECT m FROM Movie m WHERE m.id = :id"),
     @NamedQuery(name = "Movie.findByTitle", query = "SELECT m FROM Movie m WHERE m.title = :title"),
     @NamedQuery(name = "Movie.findByDirector", query = "SELECT m FROM Movie m WHERE m.director = :director"),
@@ -45,23 +48,27 @@ public class Movie implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @Basic(optional = false)
-    @NotNull
+    @NotNull (message = "Id cannot be empty")
     @Size(min = 1, max = 20)
     @Column(name = "ID")
     private String id;
     @Basic(optional = false)
-    @NotNull
+    @NotNull (message = "Title cannot be empty")
     @Size(min = 1, max = 255)
     @Column(name = "TITLE")
     private String title;
     @Lob
+    @NotNull (message = "Description cannot be empty")
+    @Size(min = 1)
     @Column(name = "DESCRIPTION")
     private String description;
     @Lob
+    @NotNull (message = "Actors cannot be empty")
+    @Size(min = 1)
     @Column(name = "STARS")
     private String stars;
     @Basic(optional = false)
-    @NotNull
+    @NotNull (message = "Director cannot be empty")
     @Size(min = 1, max = 100)
     @Column(name = "DIRECTOR")
     private String director;
@@ -76,7 +83,7 @@ public class Movie implements Serializable {
     private String runningTime;
     @Column(name = "VOTES")
     private Long votes;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Max(value=10)  @Min(value=0)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "RATING")
     private Double rating;
     @Lob
@@ -93,8 +100,10 @@ public class Movie implements Serializable {
     @Size(max = 255)
     @Column(name = "POSTER")
     private String poster;
+    @NotNull (message = "Release Year cannot be empty")
+    @Size(min=4)
     @Column(name = "RELEASE_YEAR")
-    private Integer releaseYear;
+    private String releaseYear;
 
     public Movie() {
     }
@@ -229,11 +238,11 @@ public class Movie implements Serializable {
         this.poster = poster;
     }
 
-    public Integer getReleaseYear() {
+    public String getReleaseYear() {
         return releaseYear;
     }
 
-    public void setReleaseYear(Integer releaseYear) {
+    public void setReleaseYear(String releaseYear) {
         this.releaseYear = releaseYear;
     }
 
