@@ -6,12 +6,14 @@
 package com.jana.showcase.movies.boundary;
 
 import com.jana.showcase.movies.boundary.data.ErrorData;
-import com.jana.showcase.movies.boundary.data.ErrorPointer;
 import com.jana.showcase.movies.boundary.data.MovieJson;
 import com.jana.showcase.movies.control.MovieService;
 import com.jana.showcase.movies.entity.Movie;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -81,6 +83,7 @@ public class MoviesResource {
                             movie
                         )
                     ).build();
+            System.out.println("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
         } else {
             response = Response.status(Response.Status.NOT_FOUND)
                     .entity(
@@ -115,6 +118,7 @@ public class MoviesResource {
                             .entity(
                                 new MovieJson(movie)
                             ).build();
+                    System.out.println("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
                 } else {
                     response = Response
                             .status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -124,26 +128,54 @@ public class MoviesResource {
                 System.out.println("Exception: "+ex.getMessage());
                 if(ex.getCause() instanceof ConstraintViolationException) {
                     List<ErrorData> errors = new ArrayList<>();
+                    Map<String, String[]> errorMap = new HashMap<>();
                     JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
                     JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
                     ((ConstraintViolationException)ex.getCause())
                             .getConstraintViolations()
                             .stream().forEach((violation) -> {
+                        //List - Errors added to  ArrayList named errors        
                         errors.add(new ErrorData(
                                         violation.getPropertyPath().toString(), 
                                 violation.getMessage()));
+                        //JsonObject - Errords added to JsonObjectBuilder named jsonObject Builder
+                        //With key as a string and value as an array built using JsonArraybuilder
                         jsonObjectBuilder.add(violation.getPropertyPath().toString(), 
-//                            violation.getMessage());
                             jsonArrayBuilder.add(violation.getMessage()));
+                        //Map - Errors added to HashMap named errorMap. With key as a string
+                        //and value as an array to hold a list of message
+                        if(errorMap.containsKey(violation.getPropertyPath().toString())) {
+                            String[] error = errorMap.get(violation.getPropertyPath().toString());
+                            List<String> errorList = Arrays.asList(error);
+                            errorList.add(violation.getMessage());
+                            errorMap.put(violation.getPropertyPath().toString(), 
+                                    (String[])errorList.toArray());
+                        } else {
+                            errorMap.put(violation.getPropertyPath().toString(), 
+                                    new String[]{violation.getMessage()});
+                        }
+                    });
+                    JsonArrayBuilder jsonErrorArraybuilder = Json.createArrayBuilder();
+                    errorMap.entrySet().stream().forEach(em->{
+                        JsonObjectBuilder jsonMessageObjectBuilder = Json.createObjectBuilder();
+                        JsonArrayBuilder jsonMessageArrayBuilder = Json.createArrayBuilder();
+                        Arrays.asList(em.getValue()).stream().forEach(message->{
+                            jsonMessageArrayBuilder.add(message);
+                        });
+                        jsonMessageObjectBuilder.add("attribute",em.getKey());
+                        jsonMessageObjectBuilder.add("message", jsonMessageArrayBuilder);
+                        jsonErrorArraybuilder.add(jsonMessageObjectBuilder);
                     });
                     response = Response.status(422)
                             .entity(
 //                                    new MovieJson(errors)
                                 Json.createObjectBuilder()
-                                .add("errors", Json.createArrayBuilder()
-                                        .add(
-                                            jsonObjectBuilder.build()
-                                        )
+                                .add("errors", 
+                                        jsonErrorArraybuilder
+//                                        Json.createArrayBuilder()
+//                                        .add(
+//                                            jsonObjectBuilder.build()
+//                                        )
                                     )
                                 .build()
                             ).build();

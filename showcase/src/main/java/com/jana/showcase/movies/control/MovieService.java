@@ -36,6 +36,18 @@ public class MovieService {
     
     /**
      * 
+     * @param id
+     * @return 
+     */
+    public int getRank(String id) {
+        Query query = em.createNativeQuery(
+                "SELECT MOVIE.RANK FROM (SELECT ROW_NUMBER() OVER () AS RANK, MOVIE.* FROM MOVIE) "
+                        + "AS MOVIE WHERE MOVIE.id = '"+ id+"'");
+        return ((Number)query.getSingleResult()).intValue();
+    }
+    
+    /**
+     * 
      * @param page
      * @param limit
      * @return 

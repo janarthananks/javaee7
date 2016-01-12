@@ -101,7 +101,8 @@ public class Movie implements Serializable {
     @Column(name = "POSTER")
     private String poster;
     @NotNull (message = "Release Year cannot be empty")
-    @Size(min=4)
+    @Size(max=4)
+    @Min(value=1900)
     @Column(name = "RELEASE_YEAR")
     private String releaseYear;
 
