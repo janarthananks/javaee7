@@ -44,26 +44,52 @@ public class MoviesResource {
     
     @Inject
     private MovieService movieService;
+
     /**
-     *
+     * 
      * @param sort
+     * @param filter
+     * @param title
+     * @param keyword
+     * @param year
+     * @param actor
+     * @param director
+     * @param rating
+     * @param condition
      * @param page
      * @param limit
-     * @return
+     * @return 
      */
     @GET
-    public Response load(@QueryParam(value = "sort") @DefaultValue(value = "title") String sort, 
-                         @QueryParam(value="page") @DefaultValue(value="1") int page,
-                         @QueryParam(value="limit") @DefaultValue(value="10") int limit
+    public Response load(
+                        @QueryParam(value = "sort") @DefaultValue(value = "title") String sort,
+                        @QueryParam(value = "filter") String filter,
+                        @QueryParam(value = "keyword") String keyword,
+                        @QueryParam(value="page") @DefaultValue(value="1") int page,
+                        @QueryParam(value="limit") @DefaultValue(value="10") int limit
     ) {
-        return Response
-                .ok()
-                .entity(
-                    new MovieJson(
-                            movieService.load(page, limit),
-                            movieService.getCount()
-                    )
-                ).build();
+        try {
+            List<Movie> movies;
+            int moviesFound;
+            if((Objects.isNull(filter) || filter.trim().isEmpty() || filter.equalsIgnoreCase("null")) &&
+                    (Objects.isNull(keyword) || keyword.trim().isEmpty() || keyword.equalsIgnoreCase("null"))
+                ) {
+                movies = movieService.load(page, limit);
+                moviesFound =  movieService.getCount();
+            } else {
+                movies = movieService.search(filter, keyword, page, limit);
+                moviesFound = movieService.search(filter, keyword, 0, 0).size();
+            }
+            return Response
+                    .ok()
+                    .entity(
+                            new MovieJson(
+                                    movies,
+                                    moviesFound)).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError().build();
+        }
     }
     
     /**
@@ -235,5 +261,41 @@ public class MoviesResource {
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+    
+//    @GET
+//    @Path(value="/search")
+//    public Response search(
+//            @QueryParam(value = "title") String title,
+//            @QueryParam(value = "year") String year,
+//            @QueryParam(value = "actor") String actor,
+//            @QueryParam(value = "director") String director,
+//            @QueryParam(value = "rating") String rating,
+//            @QueryParam(value="page") @DefaultValue(value="1") int page,
+//            @QueryParam(value="limit") @DefaultValue(value="10") int limit
+//            ) {
+//        try {
+//            List<Movie> movies = new ArrayList<>();
+//            int moviesFound = 0;
+//            if(Objects.isNull(title) && 
+//                    Objects.isNull(year) && 
+//                    Objects.isNull(actor) && 
+//                    Objects.isNull(director) && 
+//                    Objects.isNull(rating) ) {
+//                
+//            } else {
+//                movies = movieService.search(title, year, actor, director, rating, "AND", page, limit);
+//                moviesFound = movieService.search(title, year, actor, director, rating, "AND", 0, 0).size();
+//            }
+//            return Response
+//                    .ok()
+//                    .entity(
+//                            new MovieJson(
+//                                    movies,
+//                                    moviesFound)).build();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return Response.serverError().build();
+//        }
+//    }
     
 }
