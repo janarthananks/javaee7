@@ -49,13 +49,7 @@ public class MoviesResource {
      * 
      * @param sort
      * @param filter
-     * @param title
      * @param keyword
-     * @param year
-     * @param actor
-     * @param director
-     * @param rating
-     * @param condition
      * @param page
      * @param limit
      * @return 
