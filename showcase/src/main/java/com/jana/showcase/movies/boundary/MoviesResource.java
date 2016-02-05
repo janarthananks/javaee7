@@ -9,7 +9,6 @@ import com.jana.showcase.movies.boundary.data.ErrorData;
 import com.jana.showcase.movies.boundary.data.MovieJson;
 import com.jana.showcase.movies.control.MovieService;
 import com.jana.showcase.movies.entity.Movie;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -147,21 +146,10 @@ public class MoviesResource {
             } catch (Exception ex) {
                 System.out.println("Exception: "+ex.getMessage());
                 if(ex.getCause() instanceof ConstraintViolationException) {
-                    List<ErrorData> errors = new ArrayList<>();
                     Map<String, String[]> errorMap = new HashMap<>();
-                    JsonObjectBuilder jsonObjectBuilder = Json.createObjectBuilder();
-                    JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
                     ((ConstraintViolationException)ex.getCause())
                             .getConstraintViolations()
                             .stream().forEach((violation) -> {
-                        //List - Errors added to  ArrayList named errors        
-                        errors.add(new ErrorData(
-                                        violation.getPropertyPath().toString(), 
-                                violation.getMessage()));
-                        //JsonObject - Errords added to JsonObjectBuilder named jsonObject Builder
-                        //With key as a string and value as an array built using JsonArraybuilder
-                        jsonObjectBuilder.add(violation.getPropertyPath().toString(), 
-                            jsonArrayBuilder.add(violation.getMessage()));
                         //Map - Errors added to HashMap named errorMap. With key as a string
                         //and value as an array to hold a list of message
                         if(errorMap.containsKey(violation.getPropertyPath().toString())) {
@@ -188,14 +176,9 @@ public class MoviesResource {
                     });
                     response = Response.status(422)
                             .entity(
-//                                    new MovieJson(errors)
                                 Json.createObjectBuilder()
                                 .add("errors", 
                                         jsonErrorArraybuilder
-//                                        Json.createArrayBuilder()
-//                                        .add(
-//                                            jsonObjectBuilder.build()
-//                                        )
                                     )
                                 .build()
                             ).build();
@@ -255,41 +238,5 @@ public class MoviesResource {
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
-    
-//    @GET
-//    @Path(value="/search")
-//    public Response search(
-//            @QueryParam(value = "title") String title,
-//            @QueryParam(value = "year") String year,
-//            @QueryParam(value = "actor") String actor,
-//            @QueryParam(value = "director") String director,
-//            @QueryParam(value = "rating") String rating,
-//            @QueryParam(value="page") @DefaultValue(value="1") int page,
-//            @QueryParam(value="limit") @DefaultValue(value="10") int limit
-//            ) {
-//        try {
-//            List<Movie> movies = new ArrayList<>();
-//            int moviesFound = 0;
-//            if(Objects.isNull(title) && 
-//                    Objects.isNull(year) && 
-//                    Objects.isNull(actor) && 
-//                    Objects.isNull(director) && 
-//                    Objects.isNull(rating) ) {
-//                
-//            } else {
-//                movies = movieService.search(title, year, actor, director, rating, "AND", page, limit);
-//                moviesFound = movieService.search(title, year, actor, director, rating, "AND", 0, 0).size();
-//            }
-//            return Response
-//                    .ok()
-//                    .entity(
-//                            new MovieJson(
-//                                    movies,
-//                                    moviesFound)).build();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return Response.serverError().build();
-//        }
-//    }
     
 }
