@@ -15,6 +15,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.validation.Valid;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -22,6 +24,8 @@ import javax.validation.Valid;
  */
 @Stateless
 public class MovieService {
+    
+    private Log logger = LogFactory.getLog(MovieService.class);
     
     @PersistenceContext (unitName = "default")
     private EntityManager em;
@@ -70,7 +74,7 @@ public class MovieService {
         try {
             return (Movie)em.createNamedQuery("Movie.findById").setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
-            System.out.println("Exception "+e.getMessage());
+            logger.info("Exception "+e.getMessage());
             return null;
         }
     }
@@ -82,7 +86,7 @@ public class MovieService {
      */
     public int create(Movie movie) {
         em.persist(movie);
-        System.out.println("Movie Added");
+        logger.info("Movie Added");
         return 0;
     }
     

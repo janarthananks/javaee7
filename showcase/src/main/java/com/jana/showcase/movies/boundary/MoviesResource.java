@@ -32,6 +32,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  *
@@ -43,6 +45,8 @@ public class MoviesResource {
     
     @Inject
     private MovieService movieService;
+    
+    private Log logger = LogFactory.getLog(MoviesResource.class);
 
     /**
      * 
@@ -80,6 +84,7 @@ public class MoviesResource {
                                     movies,
                                     moviesFound)).build();
         } catch (Exception e) {
+            logger.error(e);
             e.printStackTrace();
             return Response.serverError().build();
         }
@@ -102,7 +107,7 @@ public class MoviesResource {
                             movie
                         )
                     ).build();
-            System.out.println("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
+            logger.info("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
         } else {
             response = Response.status(Response.Status.NOT_FOUND)
                     .entity(
@@ -137,14 +142,14 @@ public class MoviesResource {
                             .entity(
                                 new MovieJson(movie)
                             ).build();
-                    System.out.println("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
+                    logger.info("Rank of movie "+movie.getId()+" is "+movieService.getRank(movie.getId()));
                 } else {
                     response = Response
                             .status(Response.Status.INTERNAL_SERVER_ERROR)
                             .build();
                 }
             } catch (Exception ex) {
-                System.out.println("Exception: "+ex.getMessage());
+                logger.info("Exception: "+ex.getMessage());
                 if(ex.getCause() instanceof ConstraintViolationException) {
                     Map<String, String[]> errorMap = new HashMap<>();
                     ((ConstraintViolationException)ex.getCause())
