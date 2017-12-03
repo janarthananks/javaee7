@@ -40,13 +40,13 @@ import org.apache.commons.logging.LogFactory;
  * @author JANARTHANANS
  */
 @Path("/movies")
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+@Produces({MediaType.APPLICATION_JSON})
 public class MoviesResource {
     
     @Inject
     private MovieService movieService;
     
-    private Log logger = LogFactory.getLog(MoviesResource.class);
+    private final Log logger = LogFactory.getLog(MoviesResource.class);
 
     /**
      * 
@@ -85,7 +85,6 @@ public class MoviesResource {
                                     moviesFound)).build();
         } catch (Exception e) {
             logger.error(e);
-            e.printStackTrace();
             return Response.serverError().build();
         }
     }
